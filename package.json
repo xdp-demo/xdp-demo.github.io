@@ -1,0 +1,19 @@
+{
+  "name": "xdp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "xdp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.24.0",
+    "eslint-config-p5js": "^1.1.0"
+  },
+  "dependencies": {
+    "matter-js": "^0.17.1"
+  }
+}
