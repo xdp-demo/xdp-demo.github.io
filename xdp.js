@@ -856,8 +856,25 @@ var createEpsilonInstance = function (
   return s;
 };
 
+let epsilonBtnHandler = function (sampleEventHandler, result) {
+  let epsRangeVal = document.getElementById("epsilonRange1").value;
+  let eps;
+  if (epsRangeVal == 1) {
+    eps = 5;
+  } else if (epsRangeVal == 2) {
+    eps = 2;
+  } else if (epsRangeVal == 3) {
+    eps = 0.5;
+  }
+
+  let sampledValue = laplace((mu = result), (lambda = 1 / eps));
+  sampledValue = Math.round(sampledValue);
+  let binNum = sampledValue + Math.floor(NUM_BINS / 2) - 1;
+  sampleEventHandler(binNum);
+};
+
 let epilonHandlers = {
-  epsilonQueryBtn: dpQueryBtnHandler,
+  epsilonQueryBtn: epsilonBtnHandler,
 };
 new p5(
   createEpsilonInstance(
