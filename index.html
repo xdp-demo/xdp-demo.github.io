@@ -404,7 +404,24 @@
           If we see a <b>1</b> as our first analysis result, we are only 2x more confidant the distribution is blue.
           And we may see other results like <b>0</b>, where we incorrectly become more confidant that the distribution is red.
           However, notice as you query multiple times, we see a peak at <b>1</b>, making us more and more confidant that the distribution is blue.
-        </div>        
+        </div>  
+        
+        <h1 class="display-5 pt-5" id="Budget">Privacy budget</h1>
+        <p>In the previous example, we see that with more queries, more information, and hence privacy is leaked. 
+          A powerful property of differential privacy is that we can easily quantify how much privacy is leaked with each new query.
+          Querying with epsilon=1 five times is the same as querying once with epsilon=5, where higher epsilon means less randomness is added. 
+          This means that in practice, we need to set a <b>privacy budget</b> that caps the amount of information released by the budget. 
+        </p>
+        <div class="alert alert-primary" role="alert">
+          Try changing the budget and querying the system. The system is using privateness of epsilon=2.
+        </div>  
+        <p>
+          Budget: <input type="text" class="form-inline" placeholder="10" value=10>
+        </p>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-primary" id="dpBudgetBtn">Query</button>
+        </div>
+        <div class="p5-container" id="canvas-dp-budget"></div>
       </div>        
     </div>
 

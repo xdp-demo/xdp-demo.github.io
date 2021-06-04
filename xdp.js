@@ -51,6 +51,7 @@ var dpSamples = createSamples();
 var epsilonSamples = {};
 var leakageSamples = createSamples();
 
+var budgetSamples = createSamples();
 var dpDistributionsA = {
   A: [],
   B: [],
@@ -67,6 +68,7 @@ var createSampleInstance = function (
   epsilon,
   containerId,
   group,
+  hideGroup,
   samples,
   distributions,
   handlers
@@ -298,6 +300,9 @@ var createSampleInstance = function (
     let sampleEventHandler = function (binNum) {
       context.samples = samples;
       let color = group == "A" ? colors.SAMPLE_A_COLOR : colors.SAMPLE_B_COLOR;
+      if (hideGroup) {
+        color = colors.SAMPLE_C_COLOR;
+      }
       // let color = colors.SAMPLE_C_COLOR;
       let startBin = Math.floor(NUM_BINS / 2) - 1 + result;
       let newSample = new Sample(
@@ -341,6 +346,7 @@ let dpBeforeInstance = new p5(
     (eps = DP_EPS),
     (containerId = "canvas-dp-before"),
     (group = "A"),
+    (hideGroup = false),
     (samples = dpSamples),
     (distributions = dpDistributionsA),
     (handlers = dpBeforeHandlers)
@@ -357,6 +363,7 @@ new p5(
     (eps = DP_EPS),
     (containerId = "canvas-dp-after"),
     (group = "B"),
+    (hideGroup = false),
     (samples = dpSamples),
     (distributions = dpDistributionsB),
     (handlers = dpAfterHandlers)
@@ -557,12 +564,15 @@ new p5(
 let dpLeakageHandlers = {
   dpLeakageQueryBtn: dpQueryBtnHandler,
 };
+let combinedEpsilonDistributions = {};
+
 new p5(
   createSampleInstance(
     (result = 1),
     (eps = DP_EPS),
     (containerId = "canvas-dp-leakage"),
     (group = "B"),
+    (hideGroup = true),
     (samples = leakageSamples),
     (distributions = combinedDistributions),
     (handlers = dpLeakageHandlers)
@@ -575,6 +585,7 @@ var createEpsilonInstance = function (
   epsilon,
   containerId,
   group,
+  hideGroup,
   samples,
   distributions,
   handlers
@@ -617,24 +628,21 @@ var createEpsilonInstance = function (
         group == "A"
           ? colors.SAMPLE_A_COLOR_LIGHT
           : colors.SAMPLE_B_COLOR_LIGHT;
-      if (distributions[group].length == 0) {
-        for (let i = 0; i < NUM_BINS; i++) {
-          let x = i - Math.floor(NUM_BINS / 2) + 1;
-          let p_x = getLaplacePx(x, (mu = result), (lambda = 1 / eps));
-          let distributionCol = new DistributionColumn(
-            context,
-            i,
-            p_x,
-            group,
-            color,
-            DISTRIBUTION_MAX_HEIGHT
-          );
-          distributions[group].push(distributionCol);
-        }
-      }
+
       // Setup Epsilon Range
       epsilonRange = document.getElementById("epsilonRange1");
       let epsilonRangeLabel = document.getElementById("epsilonRangeLabel1");
+      if (epsilonRange.value == 1) {
+        eps = 5;
+        epsilonRangeLabel.innerHTML = "Low Privacy";
+      } else if (epsilonRange.value == 2) {
+        eps = 2;
+        epsilonRangeLabel.innerHTML = "Medium Privacy";
+      } else if (epsilonRange.value == 3) {
+        eps = 0.5;
+        epsilonRangeLabel.innerHTML = "High Privacy";
+      }
+
       if (epsilonSamples[eps] == undefined) {
         epsilonSamples[eps] = createSamples();
       }
@@ -656,6 +664,36 @@ var createEpsilonInstance = function (
       };
     };
     sketch.draw = function () {
+      if (!distributions[eps]) {
+        distributions[eps] = {
+          A: [],
+          B: [],
+        };
+        for (let i = 0; i < NUM_BINS; i++) {
+          let x = i - Math.floor(NUM_BINS / 2) + 1;
+          let p_xa = getLaplacePx(x, (mu = 0), (lambda = 1 / eps));
+          let distributionColA = new DistributionColumn(
+            context,
+            i,
+            p_xa,
+            "A",
+            colors.SAMPLE_A_COLOR_LIGHT,
+            DISTRIBUTION_MAX_HEIGHT
+          );
+          let p_xb = getLaplacePx(x, (mu = 1), (lambda = 1 / eps));
+          let distributionColB = new DistributionColumn(
+            context,
+            i,
+            p_xb,
+            "B",
+            colors.SAMPLE_B_COLOR_LIGHT,
+            DISTRIBUTION_MAX_HEIGHT
+          );
+          distributions[eps]["A"].push(distributionColA);
+          distributions[eps]["B"].push(distributionColB);
+        }
+      }
+
       sketch.background(colors.BACKGROUND);
 
       context.ground.display();
@@ -695,8 +733,8 @@ var createEpsilonInstance = function (
       for (let i = 0; i < NUM_BINS; i++) {
         let popup = context.popups.A[i] || context.popups.B[i];
         if (popup) {
-          let distColA = distributions["A"][i];
-          let distColB = distributions["B"][i];
+          let distColA = distributions[eps]["A"][i];
+          let distColB = distributions[eps]["B"][i];
           let distCol;
           if (distColA && distColB) {
             distCol = distColA.p_x > distColB.p_x ? distColA : distColB;
@@ -749,12 +787,12 @@ var createEpsilonInstance = function (
       });
 
       // visualize distribution labels
-      sketch.push();
-      let p1Height = DISTRIBUTION_HEIGHT - DISTRIBUTION_MAX_HEIGHT;
-      sketch.drawingContext.setLineDash([5, 5]);
-      sketch.stroke(0);
-      sketch.line(0, p1Height, WIDTH, p1Height);
-      sketch.pop();
+      // sketch.push();
+      // let p1Height = DISTRIBUTION_HEIGHT - DISTRIBUTION_MAX_HEIGHT;
+      // sketch.drawingContext.setLineDash([5, 5]);
+      // sketch.stroke(0);
+      // sketch.line(0, p1Height, WIDTH, p1Height);
+      // sketch.pop();
 
       sketch.push();
       sketch.fill(colors.TEXT_COLOR);
@@ -768,9 +806,11 @@ var createEpsilonInstance = function (
       sketch.pop();
 
       // visualize distribution
-      [].concat(distributions.A, distributions.B).forEach((distCol) => {
-        distCol.display(sketch);
-      });
+      []
+        .concat(distributions[eps].A, distributions[eps].B)
+        .forEach((distCol) => {
+          distCol.display(sketch);
+        });
 
       // Display x label
 
@@ -823,14 +863,19 @@ var createEpsilonInstance = function (
     };
 
     sketch.mousePressed = function (event) {
-      distributions[group].forEach((distCol) => {
+      distributions[eps][group].forEach((distCol) => {
         distCol.clicked(sketch, context.popups);
       });
     };
 
     let sampleEventHandler = function (binNum) {
       context.samples = samples[eps];
+
       let color = group == "A" ? colors.SAMPLE_A_COLOR : colors.SAMPLE_B_COLOR;
+      if (hideGroup) {
+        color = colors.SAMPLE_C_COLOR;
+      }
+
       // let color = colors.SAMPLE_C_COLOR;
       let startBin = Math.floor(NUM_BINS / 2) - 1 + result;
       let newSample = new Sample(
@@ -882,8 +927,24 @@ new p5(
     (eps = DP_EPS),
     (containerId = "canvas-dp-epsilon"),
     (group = "B"),
+    (hideGroup = true),
     (samples = epsilonSamples),
-    (distributions = combinedDistributions),
+    (distributions = combinedEpsilonDistributions),
     (handlers = epilonHandlers)
+  )
+);
+
+let budgetHandlers = {};
+
+new p5(
+  createSampleInstance(
+    (result = 1),
+    (eps = 2),
+    (containerId = "canvas-dp-budget"),
+    (group = "B"),
+    (hideGroup = true),
+    (samples = budgetSamples),
+    (distributions = combinedDistributions),
+    (handlers = budgetHandlers)
   )
 );
