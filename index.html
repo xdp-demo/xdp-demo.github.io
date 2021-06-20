@@ -15,29 +15,34 @@
     <a class="navbar-brand" href="#">xDP</a>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="#Heading1">Why do we need more privacy?</a>
+        <a class="nav-link" href="#WhyPrivacyHeading">Why do we need more privacy?</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#Heading2">What is DP?</a>
+        <a class="nav-link" href="#WhatDPHeading">What is DP?</a>
       </li>  
       <li class="nav-item">
-        <a class="nav-link" href="#Heading3">Quantifying Privacy Leakage</a>
+        <a class="nav-link" href="#QuantifyingLeakageHeading">Quantifying Privacy Leakage</a>
       </li>   
       <li class="nav-item">
-        <a class="nav-link" href="#Heading4">Leakage after multiple queries</a>
+        <a class="nav-link" href="#MultipleLeakageHeading">Leakage after multiple queries</a>
       </li>  
       <li class="nav-item">
         <a class="nav-link" href="#EpsilonHeading">Privateness Parameter Epsilon</a>
+      </li>  
+      <li class="nav-item">
+        <a class="nav-link" href="#BudgetHeading">Privateness Budget</a>
       </li>  
     </ul>
   </nav>
   
   <body data-bs-spy="scroll" data-bs-target="#main-navbar" tabindex="0"></body>
+  
+
     <div class="container pt-5">
+      <!--New Section -->
       <div class="row" justify-content-center>
-        <div class="col-10">
-          <!--New Section -->
-          <h1 class="display-5 pt-5" id="Heading1">Why do we need more privacy?</h1>
+        <div class="col-10">          
+          <h1 class="display-5 pt-5" id="WhyPrivacyHeading">Why do we need more privacy?</h1>
           <p>A lot of useful information can be obtained by analyzing data. However, the results of the analysis, even when it appears anonymous or deidentified, can leak private information.</p> 
           <p>Let's go through an example where this is the case. A research study wants to learn more about <input type="text" class="form-inline" placeholder="COVID" aria-label="StudyTarget">.</p> 
           <p>The analysis is to get the 
@@ -50,8 +55,8 @@
            of the <input type="text" class="form-inline" placeholder="COVID positive" aria-label="ColumnTarget"> entries in the data. 
           </p>
           <p>The analysis is interested in Asian Males between 20 to 40 years old.</p>
-          
-          <h4>Before you are included in the analysis, the data looks like:</h4>
+          <p>Bob is a 26 year old Asian male interested in joining the study.</p>
+          <h4>Before Bob is included in the analysis, the data looks like:</h4>
           
           <div class="table-container">
             <table class="table table-hover">
@@ -99,14 +104,143 @@
           <h5>Analysis</h5>
           <p>As there are no Asian Males between 20 to 40 years old, the analysis will return <b>0</b> every time you ask the system.</p>
 
-          <!-- <div class="alert alert-primary" role="alert">
-            Click on Query to get the result from the analysis.
+          <h4> After Bob is included in the analysis, the data looks like:</h4>
+          <div class="table-container">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Ethnicity</th>
+                  <th scope="col">Age</th>
+                  <th scope="col">Sex</th>
+                  <th scope="col">Covid</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td>Caucasian</td>
+                  <td>32</td>
+                  <td>Male</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>2</th>
+                  <td>Caucasian</td>
+                  <td>63</td>
+                  <td>Female</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>3</th>
+                  <td>Indigenous</td>
+                  <td>41</td>
+                  <td>Female</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>4</th>
+                  <td>Caucasian</td>
+                  <td>29</td>
+                  <td>Male</td>
+                  <td>Positive</td>
+                </tr>
+                <tr class="table-success">
+                  <th>5</th>
+                  <td>Asian</td>
+                  <td>26</td>
+                  <td>Male</td>
+                  <td>Positive</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h5>Analysis</h5>
+          <p>As there is one Asian Male between 20 to 40 years old, the analysis will return <b>1</b> every time you ask the system.
+          
+          <!--Summarize part 1 -->
+          <h4>How is this not private?</h4>
+          <p>We see that when you didn't participate, we always get a result of <b>0</b> and after you participate, we always get a result of <b>1</b>. 
+            While at first glance, this appears perfectly privacy preserving, what if someone had extra information, such as that there is only one Asians Male between 20-40 years old living in the community.
+            Then, just by seeing the count, they can figure out <b>COVID</b> result of this individual.
+            In real life, we don't know what information can be used in conjunction with the result of the analysis to uncover private information.
+            As a result, we need a way to carefully control the amount of information released to limit the amount of private information that can be recovered.
+          </p> 
+        </div>
+      </div>
+
+      <!--New Section -->
+      <div class="row" justify-content-center>
+        <div class="col-10">
+          <h1 class="display-5 pt-5" id="WhatDPHeading">What is Differential Privacy?</h1>
+          <p>Differential privacy is a mathematical approach to defining and protecting privacy. Being mathematically defined, we can prove the amount of privacy lost regardless of any extra information or creative strategies used to uncover private information. 
+            A controlled amount of randomness is strategically added to the result in order to maximize the amount of useful information we can obtain from the data while protecting privacy. 
+            Let's see it in action with the same example as above.</p>
+          <h4>Before you are included in the analysis, the data looks like:</h4>
+          <div class="table-container">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Ethnicity</th>
+                  <th scope="col">Age</th>
+                  <th scope="col">Sex</th>
+                  <th scope="col">Covid</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td>Caucasian</td>
+                  <td>32</td>
+                  <td>Male</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>2</th>
+                  <td>Caucasian</td>
+                  <td>63</td>
+                  <td>Female</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>3</th>
+                  <td>Indigenous</td>
+                  <td>41</td>
+                  <td>Female</td>
+                  <td>Positive</td>
+                </tr>
+                <tr>
+                  <th>4</th>
+                  <td>Caucasian</td>
+                  <td>29</td>
+                  <td>Male</td>
+                  <td>Positive</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h5>Analysis</h5>
+          <p>As we add randomness, we no longer get the same result everytime we query the system. 
+            The top histogram shows the distribution used to sample the result. 
+            Each column represents the probability that a given value will be sampled.
+            Depending on what the true result of the analysis is and the amount of randomness added, this distribution may change.
+            The color represents whether you participated in the study. 
+            This information is known to the system, but the goal of protecting privacy is to make it difficult for others looking at the analysis to guess the color.
+          </p>
+          <div class="alert alert-primary" role="alert">
+            Click on Query to get the result from the analysis. Try querying multiple times.
+            <!-- Click on Query x100 to get the result 100 times. -->
+          </div>
+          <div class="alert alert-warning" role="alert">
+            Note that the system may return values less than 0 which does not make sense in the context of counts. 
+            In practice, randomness will be added in such a way that the results are not less than 0, or the expected counts may be very large so that the result is extremely unlikely to be below 0.
+            In our examples, we will naively add randomness where the result may be negative for simplicity.
           </div>
           <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary" id="nodpBeforeQueryBtn">Query</button>
+            <button type="button" class="btn btn-outline-primary" id="dpBeforeQueryBtn">Query: Number of Asian Males between 20-40 years old</button>
           </div>
-          <div class="p5-container" id="canvas-nodp-before"></div> -->
-
+          <div class="p5-container" id="canvas-dp-before"></div>
 
           <h4> After you are included in the analysis, the data looks like:</h4>
           <div class="table-container">
@@ -160,298 +294,202 @@
             </table>
           </div>
           <h5>Analysis</h5>
-          <p>As there is one Asian Male between 20 to 40 years old, the analysis will return <b>1</b> every time you ask the system.
-          <!-- <div class="alert alert-primary" role="alert">
-            Click on Query to get the result from the analysis.
+          <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" id="dpAfterQueryBtn">Query: Number of Asian Males between 20-40 years old</button>
+            <!-- <button type="button" class="btn btn-outline-primary" id="dpAfterQuery100Btn">Query x100</button>
+            <button type="button" class="btn btn-outline-primary" id="dpAfterQueryEqualBtn">Query the same amount as Before</button>
+            <button type="button" class="btn btn-outline-primary" id="dpAfterResetBtn">Reset</button> -->
+          </div>
+          <div class="p5-container" id="canvas-dp-after"></div>
+
+          <div class="alert alert-primary" role="alert">
+            So suppose the analysis returns: 1. Is it more or less likely you participated compared to not participating?
+          </div>
+        </div>
+      </div>
+
+      <!--New Section -->
+      <div class="row" justify-content-center>
+        <div class="col-10">
+          <h1 class="display-5 pt-5" id="QuantifyingLeakageHeading">Quantifying privacy leakage</h1>
+          <p>To answer this question we can compare the probability of obtaining "1" when you participated compared to not participating.</p>
+          <p>With differential privacy, the way randomness is added, and thus what the distribution will look like for a given result, is not assumed to be private information.</p>
+  
+          <div class="alert alert-primary" role="alert">
+            Try clicking over the distribution to see the probability of obtaining a result.
+          </div>
+          <div class="p5-container" id="canvas-dp-quantify"></div>          
+  
+          <div class="alert alert-primary" role="alert">
+            Suppose the analysis returns: 1. Roughly how much more likely is it that you participated?
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                0.5 times as much
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                The same
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                2 times as much
+              </label>
+            </div>
+            
+            What if the analysis returned 3? Roughly how much more likely is it that you participated?
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                0.5 times as much
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                The same
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+              <label class="form-check-label" for="flexRadioDefault2">
+                2 times as much
+              </label>
+            </div>
+          </div>
+          <div class="alert alert-primary" role="alert">
+            With differential privacy, we are guaranteed that the ratio in the probability of seeing any result with participation or no participation is less than the privateness parameter <b>epsilon</b>
+          </div>
+        </div>
+      </div>
+      
+      <!--New Section -->
+      <div class="row" justify-content-center>
+        <div class="col-10">
+          
+          <h1 class="display-5 pt-5" id="MultipleLeakageHeading">Privacy leakage after multiple queries</h1>
+          <p>What happens when we query multiple times? Even with differential privacy, the more queries you ask, the more information and thus privacy is leaked.</p>
+          <div class="alert alert-primary" role="alert">
+            Try querying the system multiple times, and guess whether the the result is Blue or Red. 
           </div>
           <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary" id="nodpAfterQueryBtn">Query</button>
+            <button type="button" class="btn btn-outline-primary" id="leakageQueryBtn">Query: Number of Asian Males between 20-40 years old</button>
           </div>
-          <div class="p5-container" id="canvas-nodp-after"></div> -->
-          
-          <!--Summarize part 1 -->
-          <h4>How is this not private?</h4>
-          <p>We see that when you didn't participate, we always get a result of <b>0</b> and after you participate, we always get a result of <b>1</b>. 
-            While at first glance, this appears perfectly privacy preserving, what if someone had extra information, such as that there is only one Asians Male between 20-40 years old living in the community.
-            Then, just by seeing the count, they can figure out <b>COVID</b> result of this individual.
-            In real life, we don't know what information can be used in conjunction with the result of the analysis to uncover private information.
-            As a result, we need a way to carefully control the amount of information released to limit the amount of private information that can be recovered.
-          </p> 
+          <div class="p5-container" id="canvas-dp-leakage"></div>
+          <!-- <div class="alert alert-primary" role="alert">
+            If we see a <b>1</b> as our first analysis result, we are only 2x more confidant the distribution is blue.
+            And we may see other results like <b>0</b>, where we incorrectly become more confidant that the distribution is red.
+            However, notice as you query multiple times, we see a peak at <b>1</b>, making us more and more confidant that the distribution is blue.
+          </div>   -->
+          <div class="alert alert-primary" role="alert">
+            After querying once, do you think the correct result is 0 (Red) or 1 (Blue)?
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault">
+              <label class="form-check-label">
+                0 (Red)
+              </label>            
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault">
+              <label class="form-check-label">
+                1 (Blue)
+              </label>            
+            </div>
+          </div>
+          <div class="alert alert-primary" role="alert">
+            After querying multiple times, do you think the correct result is 0 (Red) or 1 (Blue)?
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault">
+              <label class="form-check-label">
+                0 (Red)
+              </label>            
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="flexRadioDefault">
+              <label class="form-check-label">
+                1 (Blue)
+              </label>            
+            </div>
+          </div>
+        </div>
+      </div>     
+
+      <!--New Section -->
+      <div class="row" justify-content-center>
+        <div class="col-10">
+          <h1 class="display-5 pt-5" id="EpsilonHeading">Privateness Parameter Epsilon</h1>
+          <p>Differential privacy adds a controlled amount of randomness such that any result is at most epsilon (privateness) times more likely with or without anybody's participation.
+            To achieve this, we add randomness proportional to <b>1/epsilon</b>.
+            The <i>differential</i> aspect is that this guarantee holds for any addition or removal of a data entry.</p>
+          <p>Try changing epsilon and see how the distribution of results change.</p>
+          <div class="epsilon-range-container">
+            <label for="epsilonRange1" class="form-label">Epsilon (Privateness): <span id="epsilonRangeLabel1">Low Privacy</span></label>
+            <input type="range" class="form-range" min="1" max="3" step="1" id="epsilonRange1" value=1>
+          </div>
+          <div class="alert alert-secondary" role="alert">
+            Epsilon can be 0 and this would return random numbers between -infinity and infinity. Since it won't fit on the page, we start with epsilon=1 for "High Privacy", epsilon=2 for "Medium Privacy" and epsilon=5 for "Low Privacy".
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" id="epsilonQueryBtn">Query: Number of Asian Males between 20-40 years old</button>
+          </div>
+          <div class="p5-container" id="canvas-dp-epsilon"></div>
         </div>
       </div>
-    <!--Part 2: What is differential privacy-->
-    <div class="row" justify-content-center>
-      <div class="col-10">
-        <!--New Section -->
-        <h1 class="display-5 pt-5" id="Heading2">What is Differential Privacy?</h1>
-        <p>Differential privacy is a mathematical approach to defining and protecting privacy. Being mathematically defined, we can prove the amount of privacy lost regardless of any extra information or creative strategies used to uncover private information. 
-          A controlled amount of randomness is strategically added to the result in order to maximize the amount of useful information we can obtain from the data while protecting privacy. 
-          Let's see it in action with the same example as above.</p>
-        <!-- TODO: Select the type of analysis and study -->
-        <h4>Before you are included in the analysis, the data looks like:</h4>
-        <div class="table-container">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Ethnicity</th>
-                <th scope="col">Age</th>
-                <th scope="col">Sex</th>
-                <th scope="col">Covid</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Caucasian</td>
-                <td>32</td>
-                <td>Male</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Caucasian</td>
-                <td>63</td>
-                <td>Female</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>3</th>
-                <td>Indigenous</td>
-                <td>41</td>
-                <td>Female</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>4</th>
-                <td>Caucasian</td>
-                <td>29</td>
-                <td>Male</td>
-                <td>Positive</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h5>Analysis</h5>
-        <p>As we add randomness, we no longer get the same result everytime we query the system. 
-          The top histogram shows the distribution used to sample the result. 
-          Each column represents the probability that a given value will be sampled.
-          Depending on what the true result of the analysis is and the amount of randomness added, this distribution may change.
-          The color represents whether you participated in the study. 
-          This information is known to the system, but the goal of protecting privacy is to make it difficult for others looking at the analysis to guess the color.
-        </p>
-        <div class="alert alert-primary" role="alert">
-          Click on Query to get the result from the analysis.
-          <!-- Click on Query x100 to get the result 100 times. -->
-        </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" id="dpBeforeQueryBtn">Query</button>
-          <!-- <button type="button" class="btn btn-outline-primary" id="dpBeforeQuery100Btn">Query x100</button>
-          <button type="button" class="btn btn-outline-primary" id="dpBeforeResetBtn">Reset</button> -->
-        </div>
-        <div class="p5-container" id="canvas-dp-before"></div>
-
-        <h4> After you are included in the analysis, the data looks like:</h4>
-        <div class="table-container">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Ethnicity</th>
-                <th scope="col">Age</th>
-                <th scope="col">Sex</th>
-                <th scope="col">Covid</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Caucasian</td>
-                <td>32</td>
-                <td>Male</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Caucasian</td>
-                <td>63</td>
-                <td>Female</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>3</th>
-                <td>Indigenous</td>
-                <td>41</td>
-                <td>Female</td>
-                <td>Positive</td>
-              </tr>
-              <tr>
-                <th>4</th>
-                <td>Caucasian</td>
-                <td>29</td>
-                <td>Male</td>
-                <td>Positive</td>
-              </tr>
-              <tr class="table-success">
-                <th>5</th>
-                <td>Asian</td>
-                <td>26</td>
-                <td>Male</td>
-                <td>Positive</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h5>Analysis</h5>
-        <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" id="dpAfterQueryBtn">Query</button>
-          <!-- <button type="button" class="btn btn-outline-primary" id="dpAfterQuery100Btn">Query x100</button>
-          <button type="button" class="btn btn-outline-primary" id="dpAfterQueryEqualBtn">Query the same amount as Before</button>
-          <button type="button" class="btn btn-outline-primary" id="dpAfterResetBtn">Reset</button> -->
-        </div>
-        <div class="p5-container" id="canvas-dp-after"></div>
-
-        <div class="alert alert-primary" role="alert">
-          So suppose the analysis returns: 1. Is it more or less likely you participated compared to not participating?
-        </div>
-        <!--New Section -->
-        <h1 class="display-5 pt-5" id="Heading3">Quantifying privacy leakage</h1>
-        <p>To answer this question we can compare the probability of obtaining "1" when you participated compared to not participating.</p>
-        <p>With differential privacy, the way randomness is added, and thus what the distribution will look like for a given result, is not assumed to be private information.</p>
-
-        <div class="alert alert-primary" role="alert">
-          Try clicking over the distribution to see the probability of obtaining a result.
-        </div>
-        <div class="p5-container" id="canvas-dp-quantify"></div>
-
-        
-
-        <div class="alert alert-primary" role="alert">
-          Suppose the analysis returns: 1. Roughly how much more likely is it that you participated?
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              0.5 times as much
-            </label>
+      
+      <!--New Section -->
+      <div class="row" justify-content-center>
+        <div class="col-10">
+          <h1 class="display-5 pt-5" id="Budget">Privacy budget</h1>
+          <p>In the previous example, we see that with more queries, more information, and hence privacy is leaked. 
+            A powerful property of differential privacy is that we can easily quantify how much privacy is leaked with each new query.
+            Querying with epsilon=1 five times leaks the same amount of privacy as querying once with epsilon=5, where higher epsilon means less randomness is added. 
+            This means that in practice, we need to set a <b>privacy budget</b> that caps the amount of information released by the budget. 
+          </p>
+          <div class="alert alert-primary" role="alert">
+            Try changing the budget and querying the system. The system is using privateness of epsilon=2.
+          </div>  
+          <p>
+            Budget: <input type="text" class="form-inline" id="budgetInput" placeholder="10" value=10>
+          </p>
+          <p>Budget Spent: <span id="budgetSpent">0</span></p>
+          <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" id="budgetQueryBtn">Query: Number of Asian Males between 20-40 years old</button>
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              The same
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              2 times as much
-            </label>
-          </div>
+          <div class="p5-container" id="canvas-dp-budget"></div>
           
-          What if the analysis returned 3? Roughly how much more likely is it that you participated?
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              0.5 times as much
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              The same
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-            <label class="form-check-label" for="flexRadioDefault2">
-              2 times as much
-            </label>
+          <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="toast-header">
+                <!-- <img src="..." class="rounded me-2" alt="..."> -->
+                <strong class="me-auto">Budget Spent!</strong>
+                <!-- <small>11 mins ago</small> -->
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+              <div class="toast-body">
+                The privacy budget has been spent. No more queries can be answered by the system.
+              </div>
+            </div>
           </div>
         </div>
-        <div class="alert alert-primary" role="alert">
-          With differential privacy, we are guaranteed that the ratio in the probability of seeing any result with participation or no participation is less than the privateness parameter <b>epsilon</b>
-        </div>
-        
-        <!--New Section -->
-        <h1 class="display-5 pt-5" id="EpsilonHeading">Privateness Parameter Epsilon</h1>
-        <p>Differential privacy adds a controlled amount of randomness such that any result is at most epsilon (privateness) times more likely with or without anybody's participation.
-          To achieve this, we add randomness proportional to <b>1/epsilon</b>.
-          The <i>differential</i> aspect is that this guarantee holds for any addition or removal of a data entry.</p>
-        <p>Try changing epsilon and see how the distribution of results change.</p>
-        <div class="epsilon-range-container">
-          <label for="epsilonRange1" class="form-label">Epsilon (Privateness): <span id="epsilonRangeLabel1">Low Privacy</span></label>
-          <input type="range" class="form-range" min="1" max="3" step="1" id="epsilonRange1" value=1>
-        </div>
-        <div class="alert alert-secondary" role="alert">
-          Epsilon can be 0 and this would return random numbers between -infinity and infinity. Since it won't fit on the page, we start with epsilon=1 for "High Privacy", epsilon=2 for "Medium Privacy" and epsilon=5 for "Low Privacy".
-        </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" id="epsilonQueryBtn">Query</button>
-        </div>
-        <div class="p5-container" id="canvas-dp-epsilon"></div>
+      </div>
 
 
-        <!--New Section -->
-        <h1 class="display-5 pt-5" id="Heading4">Privacy leakage after multiple queries</h1>
-        <p>What happens when we query multiple times? Even with differential privacy, the more queries you ask, the more information and thus privacy is leaked.</p>
-        <div class="alert alert-primary" role="alert">
-          Try querying the system multiple times, and guess whether the the result is Blue or Red. 
-        </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" id="dpLeakageQueryBtn">Query</button>
-        </div>
-        <div class="p5-container" id="canvas-dp-leakage"></div>
-        <div class="alert alert-primary" role="alert">
-          If we see a <b>1</b> as our first analysis result, we are only 2x more confidant the distribution is blue.
-          And we may see other results like <b>0</b>, where we incorrectly become more confidant that the distribution is red.
-          However, notice as you query multiple times, we see a peak at <b>1</b>, making us more and more confidant that the distribution is blue.
-        </div>  
-        
-        <h1 class="display-5 pt-5" id="Budget">Privacy budget</h1>
-        <p>In the previous example, we see that with more queries, more information, and hence privacy is leaked. 
-          A powerful property of differential privacy is that we can easily quantify how much privacy is leaked with each new query.
-          Querying with epsilon=1 five times is the same as querying once with epsilon=5, where higher epsilon means less randomness is added. 
-          This means that in practice, we need to set a <b>privacy budget</b> that caps the amount of information released by the budget. 
-        </p>
-        <div class="alert alert-primary" role="alert">
-          Try changing the budget and querying the system. The system is using privateness of epsilon=2.
-        </div>  
-        <p>
-          Budget: <input type="text" class="form-inline" placeholder="10" value=10>
-        </p>
-        <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" id="dpBudgetBtn">Query</button>
-        </div>
-        <div class="p5-container" id="canvas-dp-budget"></div>
-      </div>        
+    
     </div>
-
-    <!--Part 3: How to pick epsilon-->
-    <!-- <div class="row" justify-content-center>
-      <div class="col-10">
-        <h1 class="display-5">TODO: How do we pick epsilon?</h1>
-        <p>There is a tradeoff between accuracy and privacy. As we add more randomness, we lose accuracy but gain privacy.</p>
-        <p>Let's take a look at how epsilon affects accuracy.</p>
-        <h4>Accuracy</h4>
-        <p>Try changing epsilon and querying. The true result without differential privacy is 1. How likely is it for a query to return the correct result?</p>
-        <div class="epsilon-range-container">
-          <label for="epsilonRange2" class="form-label">Epsilon (Privateness): <span id="epsilonRangeLabel2">1</span></label>
-          <input type="range" class="form-range" min="1" max="10" step="1" id="epsilonRange2" value=1>
-        </div>
-
-        <h4>Cost Analysis</h4>
-        <p>
-          Visualize cost due to inaccuracies and cost due to privacy leakage for given epsilon
-        </p>
-      </div>
-    </div> -->
-    <!-- Optional JavaScript; choose one of the two! -->
-
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
-    <script src="xdp.js"></script>
-    <script src="boundary.js"></script>
-    <script src="sample.js"></script>
-    <script src="odds.js"></script>
-    <script src="distributions.js"></script>
+    <script src="js/components/utils.js"></script>
+    <script src="js/components/Boundary.js"></script>
+    <script src="js/components/DistributionColumn.js"></script>
+    <script src="js/components/distributions.js"></script>
+    <script src="js/components/DpViz.js"></script>
+    <script src="js/components/Sample.js"></script>
+    <script src="js/components/SystemView.js"></script>
+    <script src="js/components/UserView.js"></script>
+    <script src="js/xdp.js"></script>
   </body>
 </html>
